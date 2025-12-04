@@ -1,0 +1,89 @@
+
+units		 metal
+atom_style	 full
+boundary	 p p p
+
+#	ATOMS DIFINE
+read_restart	restartfileP2_file_2
+
+
+
+set		 type 1 charge  1.2
+set		 type 2 charge -1.2
+set		 type 3 charge  3.0
+set		 type 4 charge  2.4
+
+pair_style 	buck/coul/long 10.0
+pair_coeff    	1 1 	0.0	1.0	0.0
+pair_coeff   	1 2 	7747.1834	0.252623	93.109
+pair_coeff    	1 3 	0.0	1.0	0.0
+pair_coeff    	1 4 	0.0	1.0	0.0
+
+pair_coeff    	2 2 	2029.2204	0.343645	192.58
+pair_coeff    	2 3 	26655.472	0.181968	86.856
+pair_coeff    	2 4 	13702.905	0.193817	54.681
+
+pair_coeff    	3 1 	0.0	1.0	0.0
+pair_coeff    	3 2 	0.0	1.0	0.0
+pair_coeff    	3 3 	0.0	1.0	0.0
+pair_coeff    	3 4 	0.0	1.0	0.0
+
+pair_coeff    	4 4	0.0	1.0	0.0
+
+
+kspace_style	ewald 1.0e-4
+
+
+
+#	Neighbor AND GROUPE
+
+neighbor		2.0 bin
+neigh_modify	check yes every 1 delay 0 check yes
+
+
+
+#	 Simulation settings
+
+thermo         100
+
+thermo_style   custom step temp density pe ke etotal press 
+
+timestep       0.001
+
+reset_timestep	0
+
+velocity all create 300.0 12345 mom yes rot yes dist gaussian
+fix 	A all nve
+run	10000
+unfix	A
+
+fix	B all nvt temp 300.0 5000.0 1.0
+run	40000
+unfix	B
+
+fix 	C all nvt temp 5000.0 5000.0 50.0
+run	200000
+unfix	C
+
+fix 	D all nvt temp 5000.0 3000.0 1.0
+run	400000
+unfix	CC
+
+fix	E all npt temp 3000.0 3000.0 1.0 iso 0.0 0.0 1.0 
+run	150000
+unfix	D
+
+fix	F all npt temp 3000.0 300.0 1.0 iso 0.0 0.0 1.0
+run	600000
+unfix	DD
+
+fix	G all npt temp 300.0 300.0 1.0 iso 0.0 0.0 1.0
+run	100000
+unfix	E
+
+fix	H all nvt temp 300.0 300.0 1.0
+run	100000
+unfix	EE
+
+write_restart	restartfileP2fine_re
+
